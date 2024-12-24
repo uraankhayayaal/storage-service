@@ -1,4 +1,21 @@
 services:
+  db:
+    image: mysql:8.0
+    container_name: storage-service-db
+    command: --default-authentication-plugin=mysql_native_password
+    restart: always
+    volumes:
+      - db-data:/var/lib/mysql
+    ports:
+      - 33061:3306
+    networks:
+      - storage-service-net
+    environment:
+      MYSQL_ROOT_PASSWORD: ${DB_PASSWORD}
+      MYSQL_DATABASE: ${DB_DATABASE}
+      MYSQL_USER: ${DB_USERNAME}
+      MYSQL_PASSWORD: ${DB_PASSWORD}
+
   web:
     image: nginx:1.27.2
     container_name: storage-service-web
@@ -31,3 +48,5 @@ networks:
     driver: 'bridge'
   docker-net:
     external: true
+volumes:
+  db-data:
