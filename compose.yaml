@@ -1,0 +1,33 @@
+services:
+  web:
+    image: nginx:1.27.2
+    container_name: storage-service-web
+    restart: always
+    ports:
+      - 8001:80
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf
+      - ./public/index.php:/app/public/index.php
+    networks:
+      - storage-service-net
+      - docker-net
+
+  app:
+    build:
+      context: ./
+      target: dev
+    container_name: storage-service-app
+    restart: always
+    volumes:
+      - ./:/app
+    environment:
+      GITHUB_API_TOKEN: ${GITHUB_API_TOKEN}
+    networks:
+      - storage-service-net
+      - docker-net
+
+networks:
+  storage-service-net:
+    driver: 'bridge'
+  docker-net:
+    external: true
