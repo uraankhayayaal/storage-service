@@ -12,7 +12,7 @@ use Uraankhayayaal\OpenapiGeneratorLumen\Http\Requests\BaseRequestFormData;
 final class UploadFilesForm extends BaseRequestFormData
 {
     /** @var mixed[] */
-    #[OA\Property(property: 'files', type: 'array', items: new OA\Items(type: 'string', format: 'binary'), nullable: false)]
+    #[OA\Property(property: 'files[]', type: 'array', items: new OA\Items(type: 'string', format: 'binary'), nullable: false)]
     public array $files;
 
     public function rules(): array
