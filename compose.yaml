@@ -1,5 +1,5 @@
 services:
-  db:
+  ss-db:
     image: mysql:8.0
     container_name: storage-service-db
     command: --default-authentication-plugin=mysql_native_password
@@ -16,7 +16,7 @@ services:
       MYSQL_USER: ${DB_USERNAME}
       MYSQL_PASSWORD: ${DB_PASSWORD}
 
-  web:
+  ss-web:
     image: nginx:1.27.2
     container_name: storage-service-web
     restart: always
@@ -29,7 +29,7 @@ services:
       - storage-service-net
       - docker-net
 
-  app:
+  ss-app:
     build:
       context: ./
       target: dev

@@ -25,7 +25,7 @@ RUN apk add --no-cache linux-headers \
     && pecl install xdebug-3.3.2 \
     && docker-php-ext-enable xdebug
 COPY ./xdebug.ini /usr/local/etc/php/conf.d/docker-php-ext-xdebug.ini
-RUN composer install
+RUN composer update
 
 FROM dev_deps as dev
 CMD php-fpm

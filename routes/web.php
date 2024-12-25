@@ -16,3 +16,10 @@
 $router->get('/', function () use ($router) {
     return $router->app->version();
 });
+
+$router->group(['prefix' => 'api', 'as' => 'storage-service'], function () use ($router) {
+    $router->get('/check', 'ApiController@check');
+    $router->post('/upload', 'ApiController@upload');
+    $router->post('/miltipleupload', 'ApiController@miltipleupload');
+    $router->delete('/remove', 'ApiController@remove');
+});

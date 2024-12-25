@@ -3,10 +3,13 @@
 namespace App\Exceptions;
 
 use Illuminate\Auth\Access\AuthorizationException;
+use Illuminate\Contracts\Filesystem\FileNotFoundException;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Validation\ValidationException;
 use Laravel\Lumen\Exceptions\Handler as ExceptionHandler;
 use Symfony\Component\HttpKernel\Exception\HttpException;
+use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
+use Symfony\Component\Translation\Exception\NotFoundResourceException;
 use Throwable;
 
 class Handler extends ExceptionHandler
@@ -49,6 +52,21 @@ class Handler extends ExceptionHandler
      */
     public function render($request, Throwable $exception)
     {
+        if ($exception instanceof ValidationException) {
+            return response()->json([
+                'details' => $exception->errors(),
+            ], 422);
+        }
+        if (
+            $exception instanceof NotFoundResourceException
+            || $exception instanceof FileNotFoundException
+            || $exception instanceof NotFoundHttpException
+        ) {
+            return response()->json([
+                'details' => $exception->getMessage(),
+            ], 404);
+        }
+
         return parent::render($request, $exception);
     }
 }
