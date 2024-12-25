@@ -86,9 +86,9 @@ paths:
           multipart/form-data:
             schema:
               required:
-                - file
+                - files
               properties:
-                file:
+                files:
                   type: array
                   items: { type: string, format: binary }
                   nullable: false
