@@ -17,6 +17,12 @@ $router->get('/', function () use ($router) {
     return $router->app->version();
 });
 
+$router->get('/swagger.yaml', function () {
+    return response(file_get_contents('./swagger.yaml'), 200, [
+        'Content-Type' => 'application/yaml',
+    ]);
+});
+
 $router->group(['prefix' => 'api', 'as' => 'storage-service'], function () use ($router) {
     $router->get('/check', 'ApiController@check');
     $router->post('/upload', 'ApiController@upload');
