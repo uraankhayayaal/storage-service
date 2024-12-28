@@ -30,7 +30,7 @@ final class UploadFileForm extends BaseRequestFormData
     /**
      * @return \Illuminate\Http\UploadedFile|\Illuminate\Http\UploadedFile[]|array|null
      */
-    public function file(): mixed
+    public function uploadFile(): mixed
     {
         return app('request')->file('file');
     }

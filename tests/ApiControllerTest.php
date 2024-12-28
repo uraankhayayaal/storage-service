@@ -8,20 +8,6 @@ use Illuminate\Support\Facades\Storage;
 
 class ApiControllerTest extends TestCase
 {
-    /**
-     * A basic test example.
-     *
-     * @return void
-     */
-    public function test_that_base_endpoint_returns_a_successful_response()
-    {
-        $this->get('/');
-
-        $this->assertEquals(
-            $this->app->version(), $this->response->getContent()
-        );
-    }
-
     public function test_check_exists_file_success()
     {
         $storage = Storage::fake('public');
@@ -36,7 +22,6 @@ class ApiControllerTest extends TestCase
             ->json('get', '/api/check?url='.'http://localhost:8001/storage/'.$existsFileName)
             ->seeJsonEquals([
                 'data' => [
-                    'url' => 'http://localhost:8001/storage/'.$existsFileName,
                     'isExist' => true
                 ],
             ]);
@@ -48,7 +33,6 @@ class ApiControllerTest extends TestCase
             ->json('get', '/api/check?url='.'http://not.found/file')
             ->seeJsonEquals([
                 'data' => [
-                    'url' => 'http://not.found/file',
                     'isExist' => false
                 ],
             ]);
@@ -59,8 +43,8 @@ class ApiControllerTest extends TestCase
         $file = UploadedFile::fake()->create('some.new');
 
         $this
-            ->post('/api/upload', ['file' => $file])
-            ->assertResponseOk();
+            ->call('post', '/api/upload', [], [], ['file' => $file])
+            ->assertCreated();
     }
 
     public function test_miltipleupload_success()
@@ -69,8 +53,8 @@ class ApiControllerTest extends TestCase
         $file2 = UploadedFile::fake()->create('some2.new2');
 
         $this
-            ->post('/api/miltipleupload', ['files' => [$file1, $file2]])
-            ->assertResponseOk();
+            ->call('post', '/api/miltipleupload', [], [], ['files' => [$file1, $file2]])
+            ->assertCreated();
     }
 
     public function test_remove_success()

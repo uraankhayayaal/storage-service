@@ -33,7 +33,7 @@ final class UploadFilesForm extends BaseRequestFormData
     /**
      * @return \Illuminate\Http\UploadedFile|\Illuminate\Http\UploadedFile[]|array|null
      */
-    public function file(): array
+    public function uploadFiles(): array
     {
         $uploadFiles = app('request')->file('files');
 

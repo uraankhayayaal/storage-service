@@ -10,7 +10,6 @@ use Illuminate\Http\Resources\Json\JsonResource;
 class FileResponse extends JsonResource
 {
     public function __construct(
-        public string $url,
         public bool $isExist,
     ) {}
 
@@ -22,7 +21,6 @@ class FileResponse extends JsonResource
     public function toArray(Request $request): array
     {
         return [
-            'url' => $this->url,
             'isExist' => $this->isExist,
         ];
     }

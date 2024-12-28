@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Http\Responses;
 
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
@@ -26,5 +27,10 @@ class UploadFilesSuccessResponse extends JsonResource
         return [
             'urls' => $this->urls,
         ];
+    }
+
+    public function withResponse(Request $request, JsonResponse $response): void
+    {
+        $response->setStatusCode(201);
     }
 }

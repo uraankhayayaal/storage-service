@@ -13,7 +13,7 @@ use Symfony\Component\HttpKernel\Exception\HttpException;
 
 final class UploaderService
 {
-    public const STORAGE = 'public'; // 's3', 'storage'
+    public const STORAGE = 'public'; // 'public'; // 's3', 'storage'
 
     /**
      * @throws FileNotFoundException
@@ -25,15 +25,15 @@ final class UploaderService
 
     public function upload(UploadFileForm $uploadFileForm): string
     {
-        $fileName = $this->generateFileName($uploadFileForm->file->getClientOriginalName());
+        $fileName = $this->generateFileName($uploadFileForm->uploadFile()->getClientOriginalName());
 
-        $isUpload = Storage::disk(self::STORAGE)->put($fileName, $uploadFileForm->file);
+        $isUpload = Storage::disk(self::STORAGE)->put($fileName, $uploadFileForm->uploadFile());
 
         if ($isUpload === false) {
             throw new HttpException(500, "Error to save file to storage");
         }
 
-        return app('url')->asset("storage/$fileName");
+        return Storage::url($fileName);
     }
 
     /**
@@ -42,12 +42,12 @@ final class UploaderService
     public function miltipleupload(UploadFilesForm $uploadFilesForm): array
     {
         $files = [];
-        foreach ($uploadFilesForm->files as $file) {
+        foreach ($uploadFilesForm->uploadFiles() as $file) {
             $fileName = $this->generateFileName($file->getClientOriginalName());
 
             $isUpload = Storage::disk(self::STORAGE)->put($fileName, $file);
 
-            $files[$file->getClientOriginalName()] = $isUpload ? app('url')->asset("storage/$fileName") : null;
+            $files[$file->getClientOriginalName()] = $isUpload ? Storage::url($fileName) : null;
         }
         return $files;
     }

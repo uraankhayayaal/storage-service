@@ -23,10 +23,7 @@ class ApiController extends BaseController
     {
         $isExist = $this->service->checkIsFileExist($getFileQuery->url);
 
-        return new FileResponse(
-            url: $getFileQuery->url,
-            isExist: $isExist,
-        );
+        return new FileResponse(isExist: $isExist);
     }
 
     public function upload(UploadFileForm $uploadFileForm): UploadFileSuccessResponse
