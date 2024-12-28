@@ -9,17 +9,12 @@ use Illuminate\Http\Resources\Json\JsonResource;
 
 class UploadFilesSuccessResponse extends JsonResource
 {
-    public int $createdAt;
-
     /**
      * @param array<string,null|string> $urls
      */
     public function __construct(
         public array $urls,
-        public string $status = 'success',
-    ) {
-        $this->createdAt = time();
-    }
+    ) {}
 
     /**
      * Transform the resource into an array.
@@ -30,8 +25,6 @@ class UploadFilesSuccessResponse extends JsonResource
     {
         return [
             'urls' => $this->urls,
-            'status' => $this->status,
-            'createdAt' => $this->createdAt,
         ];
     }
 }

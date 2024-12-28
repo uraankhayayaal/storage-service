@@ -7,12 +7,10 @@ use App\Http\Requests\RemoveFileQuery;
 use App\Http\Requests\UploadFileForm;
 use App\Http\Requests\UploadFilesForm;
 use App\Http\Responses\FileResponse;
-use App\Http\Responses\RemoveFileErrorResponse;
-use App\Http\Responses\RemoveFileSuccessResponse;
 use App\Http\Responses\UploadFileSuccessResponse;
-use App\Http\Responses\UploadFileErrorResponse;
 use App\Http\Responses\UploadFilesSuccessResponse;
 use App\Services\UploaderService;
+use Illuminate\Http\JsonResponse;
 use Laravel\Lumen\Routing\Controller as BaseController;
 
 class ApiController extends BaseController
@@ -31,13 +29,11 @@ class ApiController extends BaseController
         );
     }
 
-    public function upload(UploadFileForm $uploadFileForm): UploadFileSuccessResponse|UploadFileErrorResponse
+    public function upload(UploadFileForm $uploadFileForm): UploadFileSuccessResponse
     {
         $fileUrl = $this->service->upload($uploadFileForm);
 
-        return $fileUrl !== null
-            ? new UploadFileSuccessResponse(url: $fileUrl)
-            : new UploadFileErrorResponse();
+        return new UploadFileSuccessResponse(url: $fileUrl);
     }
 
     public function miltipleupload(UploadFilesForm $uploadFilesForm): UploadFilesSuccessResponse
@@ -47,12 +43,10 @@ class ApiController extends BaseController
         return new UploadFilesSuccessResponse(urls: $fileUrls);
     }
 
-    public function remove(RemoveFileQuery $removeFileQuery): RemoveFileSuccessResponse|RemoveFileErrorResponse
+    public function remove(RemoveFileQuery $removeFileQuery): JsonResponse
     {
-        $isDeleted = $this->service->remove($removeFileQuery->url);
+        $this->service->remove($removeFileQuery);
 
-        return $isDeleted
-            ? new RemoveFileSuccessResponse()
-            : new RemoveFileErrorResponse();
+        return response()->json([], 204);
     }
 }

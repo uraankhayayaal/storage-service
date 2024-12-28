@@ -4,31 +4,36 @@ declare(strict_types=1);
 
 namespace App\Services;
 
+use App\Http\Requests\RemoveFileQuery;
 use App\Http\Requests\UploadFileForm;
 use App\Http\Requests\UploadFilesForm;
-use App\Storages\StorageInterface;
 use Illuminate\Contracts\Filesystem\FileNotFoundException;
-use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\Storage;
+use Symfony\Component\HttpKernel\Exception\HttpException;
 
 final class UploaderService
 {
-    public function __construct(
-        private StorageInterface $storage,
-    ) {}
+    public const STORAGE = 'public'; // 's3', 'storage'
 
     /**
      * @throws FileNotFoundException
      */
     public function checkIsFileExist(string $fileUrl): bool
     {
-        return $this->storage->checkIsFileExist($fileUrl);
+        return Storage::disk(self::STORAGE)->exists(basename($fileUrl));
     }
 
-    public function upload(UploadFileForm $uploadFileForm): ?string
+    public function upload(UploadFileForm $uploadFileForm): string
     {
-        $fileName = $this->generateFileName($uploadFileForm->file('file'));
+        $fileName = $this->generateFileName($uploadFileForm->file->getClientOriginalName());
 
-        return $this->storage->putFile($uploadFileForm->file('file'), $fileName);
+        $isUpload = Storage::disk(self::STORAGE)->put($fileName, $uploadFileForm->file);
+
+        if ($isUpload === false) {
+            throw new HttpException(500, "Error to save file to storage");
+        }
+
+        return app('url')->asset("storage/$fileName");
     }
 
     /**
@@ -37,21 +42,30 @@ final class UploaderService
     public function miltipleupload(UploadFilesForm $uploadFilesForm): array
     {
         $files = [];
-        foreach ($uploadFilesForm->file() as $file) {
-            $files[$this->generateFileName($file)] = $file;
+        foreach ($uploadFilesForm->files as $file) {
+            $fileName = $this->generateFileName($file->getClientOriginalName());
+
+            $isUpload = Storage::disk(self::STORAGE)->put($fileName, $file);
+
+            $files[$file->getClientOriginalName()] = $isUpload ? app('url')->asset("storage/$fileName") : null;
+        }
+        return $files;
+    }
+
+    public function remove(RemoveFileQuery $removeFileQuery): bool
+    {
+        $isDeleted = Storage::disk(self::STORAGE)->deleteDirectory(basename($removeFileQuery->url));
+
+        if ($isDeleted === false) {
+            throw new HttpException(500, "Error to remove file from storage");
         }
 
-        return $this->storage->putFiles($files);
+        return true;
     }
 
-    public function remove(string $fileUrl): bool
+    private function generateFileName(string $fileOriginName): string
     {
-        return $this->storage->removeFile($fileUrl);
-    }
-
-    private function generateFileName(UploadedFile $file): string
-    {
-        $originalFilenameArr = explode('.', $file->getClientOriginalName());
+        $originalFilenameArr = explode('.', $fileOriginName);
 
         $fileName = 'U-' . time() . '-' . str()->random() . '.' . end($originalFilenameArr);
 
