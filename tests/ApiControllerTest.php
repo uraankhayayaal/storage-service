@@ -2,21 +2,37 @@
 
 namespace Tests;
 
+use Illuminate\Contracts\Filesystem\Filesystem;
 use Illuminate\Http\Testing\File;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
 
 class ApiControllerTest extends TestCase
 {
+    private Filesystem $storage;
+
+    protected function setUp(): void
+    {
+        if (! $this->app) {
+            $this->refreshApplication();
+        }
+
+        $this->setUpTraits();
+
+        $this->storage = Storage::fake(
+            env('APP_STORAGE', 'disk') === 'cloud'
+                ? 's3'
+                : 'local'
+        );
+    }
+
     public function test_check_exists_file_success()
     {
-        $storage = Storage::fake('public');
-
         $existsFileName = 'some.exist';
 
         $existsFile = File::fake()->create($existsFileName);
 
-        $storage->put($existsFileName, $existsFile);
+        $this->storage->put($existsFileName, $existsFile);
 
         $this
             ->json('get', '/api/check?url='.'http://localhost:8001/storage/'.$existsFileName)
@@ -59,13 +75,11 @@ class ApiControllerTest extends TestCase
 
     public function test_remove_success()
     {
-        $storage = Storage::fake('public');
-
         $deletingFileName = 'some.deleting';
 
         $deletingFile = File::fake()->createWithContent($deletingFileName, 'asdasdas');
 
-        $storage->put($deletingFileName, $deletingFile);
+        $this->storage->put($deletingFileName, $deletingFile);
 
         $this
             ->delete('/api/remove?url=' . app('url')->asset("storage/$deletingFileName"))
